@@ -1,30 +1,49 @@
+import os
+import fnmatch
 from conans import ConanFile
-from conans.tools import get
+from conans.tools import get, patch
 from conans import CMake
 from multiprocessing import cpu_count
 
 
+def apply_patches(source, dest):
+    for root, dirnames, filenames in os.walk(source):
+        for filename in fnmatch.filter(filenames, '*.patch'):
+            patch_file = os.path.join(root, filename)
+            dest_path = os.path.join(dest, os.path.relpath(root, source))
+            patch(base_path=dest_path, patch_file=patch_file)
+
+
 class CeguiConan(ConanFile):
     name = "CEGUI"
+    description = "Crazy Eddie's GUI"
     version = "0.8.7"
     folder = 'cegui-0.8.7'
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False]}
-    default_options = "shared=False"
-    exports = ["CMakeLists.txt"]
-    # requires = 
-    url="http://github.com/sixten-hilborn/conan-cegui"
-    license="https://opensource.org/licenses/mit-license.php"
+    default_options = "shared=True"
+    exports = ["CMakeLists.txt", 'patches*']
+    requires = (
+        "freetype/2.6.3@sixten-hilborn/testing",
+        "OGRE/1.9.0@sixten-hilborn/testing",
+        "libxml2/2.9.3@lasote/stable",
+        #"tinyxml2/4.0.1@ebostijancic/testing"
+        "SDL2/2.0.5@lasote/stable",
+        "SDL2_image/2.0.1@lasote/stable"
+    )
+    url = "http://github.com/sixten-hilborn/conan-cegui"
+    license = "https://opensource.org/licenses/mit-license.php"
 
     def source(self):
         get("https://bitbucket.org/cegui/cegui/downloads/cegui-0.8.7.zip")
+        apply_patches('patches', self.folder)
 
     def build(self):
         self.makedir('_build')
         cmake = CMake(self.settings)
         cd_build = 'cd _build'
-        options = ''
+        options = '-DCEGUI_SAMPLES_ENABLED=0 -DCEGUI_BUILD_PYTHON_MODULES=0'
         build_options = '-- -j{0}'.format(cpu_count()) if self.settings.compiler == 'gcc' else ''
         self.run_and_print('%s && cmake .. %s %s' % (cd_build, cmake.command_line, options))
         self.run_and_print("%s && cmake --build . %s %s" % (cd_build, cmake.build_config, build_options))
@@ -39,6 +58,7 @@ class CeguiConan(ConanFile):
         lib_dir = "_build/{0}/lib".format(self.folder)
         bin_dir = "_build/{0}/bin".format(self.folder)
         self.copy(pattern="*.h", dst="include/CEGUI", src="{0}/cegui/include/CEGUI".format(self.folder))
+        self.copy(pattern="*.h", dst="include/CEGUI", src="_build/{0}/cegui/include/CEGUI".format(self.folder))
         self.copy("*.lib", dst="lib", src=lib_dir, keep_path=False)
         self.copy("*.a", dst="lib", src=lib_dir, keep_path=False)
         self.copy("*.so", dst="lib", src=lib_dir, keep_path=False)
@@ -47,12 +67,12 @@ class CeguiConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = [
             'CEGUIBase-0',
-            'CEGUIOpenGLRenderer-0'
+            'CEGUIOgreRenderer-0'
         ]
 
-        #if self.settings.os == "Windows":
-        #    if self.settings.build_type == "Debug" and self.settings.compiler == "Visual Studio":
-        #        self.cpp_info.libs = [lib+'_d' for likb in self.cpp_info.libs]
+        if self.settings.os == "Windows":
+            if self.settings.build_type == "Debug" and self.settings.compiler == "Visual Studio":
+                self.cpp_info.libs = [lib+'_d' for lib in self.cpp_info.libs]
 
     def run_and_print(self, command):
         self.output.warn(command)
