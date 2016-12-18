@@ -43,7 +43,7 @@ class CeguiConan(ConanFile):
         self.makedir('_build')
         cmake = CMake(self.settings)
         cd_build = 'cd _build'
-        options = '-DCEGUI_SAMPLES_ENABLED=0 -DCEGUI_BUILD_PYTHON_MODULES=0'
+        options = '-DCEGUI_SAMPLES_ENABLED=0 -DCEGUI_BUILD_PYTHON_MODULES=0 -DCEGUI_HAS_FREETYPE=1'
         build_options = '-- -j{0}'.format(cpu_count()) if self.settings.compiler == 'gcc' else ''
         self.run_and_print('%s && cmake .. %s %s' % (cd_build, cmake.command_line, options))
         self.run_and_print("%s && cmake --build . %s %s" % (cd_build, cmake.build_config, build_options))
