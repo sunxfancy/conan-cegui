@@ -25,10 +25,10 @@ class CeguiConan(ConanFile):
     default_options = "shared=True"
     exports = ["CMakeLists.txt", 'patches*']
     requires = (
+        #"freeimage/3.17.0@sixten-hilborn/testing",
         "freetype/2.6.3@sixten-hilborn/testing",
         "OGRE/1.9.0@sixten-hilborn/testing",
         "libxml2/2.9.3@lasote/stable",
-        #"tinyxml2/4.0.1@ebostijancic/testing"
         "SDL2/2.0.5@lasote/stable",
         "SDL2_image/2.0.1@lasote/stable"
     )
@@ -43,7 +43,12 @@ class CeguiConan(ConanFile):
         self.makedir('_build')
         cmake = CMake(self.settings)
         cd_build = 'cd _build'
-        options = '-DCEGUI_SAMPLES_ENABLED=0 -DCEGUI_BUILD_PYTHON_MODULES=0 -DCEGUI_HAS_FREETYPE=1'
+        options = (
+            '-DCEGUI_SAMPLES_ENABLED=0 '
+            '-DCEGUI_BUILD_PYTHON_MODULES=0 '
+            '-DCEGUI_HAS_FREETYPE=1 '
+            '-DCEGUI_OPTION_DEFAULT_IMAGECODEC=SDL2ImageCodec '
+            '-DCEGUI_BUILD_IMAGECODEC_FREEIMAGE=0 ')
         build_options = '-- -j{0}'.format(cpu_count()) if self.settings.compiler == 'gcc' else ''
         self.run_and_print('%s && cmake .. %s %s' % (cd_build, cmake.command_line, options))
         self.run_and_print("%s && cmake --build . %s %s" % (cd_build, cmake.build_config, build_options))
