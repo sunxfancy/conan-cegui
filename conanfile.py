@@ -25,9 +25,9 @@ class CeguiConan(ConanFile):
     default_options = "shared=True"
     exports = ["CMakeLists.txt", 'patches*']
     requires = (
-        #"freeimage/3.17.0@sixten-hilborn/testing",
-        "freetype/2.6.3@sixten-hilborn/testing",
-        "OGRE/1.9.0@sixten-hilborn/testing",
+        #"freeimage/3.17.0@hilborn/stable",
+        "freetype/2.6.3@hilborn/stable",
+        "OGRE/1.9.0@hilborn/stable",
         "libxml2/2.9.3@lasote/stable",
         "SDL2/2.0.5@lasote/stable",
         "SDL2_image/2.0.1@lasote/stable"
