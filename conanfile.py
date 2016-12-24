@@ -1,7 +1,8 @@
 import os
 import fnmatch
+from shutil import copytree
 from conans import ConanFile
-from conans.tools import get, patch
+from conans.tools import get, patch, replace_in_file
 from conans import CMake
 from multiprocessing import cpu_count
 
@@ -21,8 +22,11 @@ class CeguiConan(ConanFile):
     folder = 'cegui-0.8.7'
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False]}
-    default_options = "shared=True"
+    options = {
+        "shared": [True, False],
+        "with_ois": [True, False]
+    }
+    default_options = "shared=True", "with_ois=False", "libxml2:shared=True"
     exports = ["CMakeLists.txt", 'patches*']
     requires = (
         #"freeimage/3.17.0@hilborn/stable",
@@ -38,6 +42,12 @@ class CeguiConan(ConanFile):
     def source(self):
         get("https://bitbucket.org/cegui/cegui/downloads/cegui-0.8.7.zip")
         apply_patches('patches', self.folder)
+        if not self.options.with_ois:
+            replace_in_file('{0}/CMakeLists.txt'.format(self.folder), 'find_package(OIS)', '')
+
+    def requirements(self):
+        if self.options.with_ois:
+            self.requires("OIS/1.3@hilborn/stable")
 
     def build(self):
         self.makedir('_build')
@@ -46,6 +56,7 @@ class CeguiConan(ConanFile):
         options = (
             '-DCEGUI_SAMPLES_ENABLED=0 '
             '-DCEGUI_BUILD_PYTHON_MODULES=0 '
+            '-DCEGUI_BUILD_APPLICATION_TEMPLATES=0 '
             '-DCEGUI_HAS_FREETYPE=1 '
             '-DCEGUI_OPTION_DEFAULT_IMAGECODEC=SDL2ImageCodec '
             '-DCEGUI_BUILD_IMAGECODEC_FREEIMAGE=0 ')
