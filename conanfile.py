@@ -29,12 +29,12 @@ class CeguiConan(ConanFile):
     default_options = "shared=True", "with_ois=False", "libxml2:shared=True"
     exports = ["CMakeLists.txt", 'patches*']
     requires = (
-        #"freeimage/3.17.0@hilborn/stable",
+        "freeimage/3.17.0@hilborn/stable",
         "freetype/2.6.3@hilborn/stable",
         "OGRE/1.9.0@hilborn/stable",
-        "libxml2/2.9.3@lasote/stable",
-        "SDL2/2.0.5@lasote/stable",
-        "SDL2_image/2.0.1@lasote/stable"
+        "libxml2/2.9.3@lasote/stable"
+        #"SDL2/2.0.5@lasote/stable",
+        #"SDL2_image/2.0.1@lasote/stable"
     )
     url = "http://github.com/sixten-hilborn/conan-cegui"
     license = "https://opensource.org/licenses/mit-license.php"
@@ -58,8 +58,8 @@ class CeguiConan(ConanFile):
             '-DCEGUI_BUILD_PYTHON_MODULES=0 '
             '-DCEGUI_BUILD_APPLICATION_TEMPLATES=0 '
             '-DCEGUI_HAS_FREETYPE=1 '
-            '-DCEGUI_OPTION_DEFAULT_IMAGECODEC=SDL2ImageCodec '
-            '-DCEGUI_BUILD_IMAGECODEC_FREEIMAGE=0 ')
+            '-DCEGUI_OPTION_DEFAULT_IMAGECODEC=FreeImageCodec '
+            '-DCEGUI_BUILD_IMAGECODEC_FREEIMAGE=1 ')
         build_options = '-- -j{0}'.format(cpu_count()) if self.settings.compiler == 'gcc' else ''
         self.run_and_print('%s && cmake .. %s %s' % (cd_build, cmake.command_line, options))
         self.run_and_print("%s && cmake --build . %s %s" % (cd_build, cmake.build_config, build_options))
