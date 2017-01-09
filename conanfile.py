@@ -77,7 +77,7 @@ class CeguiConan(ConanFile):
         self.copy(pattern="*.h", dst="include/CEGUI", src="_build/{0}/cegui/include/CEGUI".format(self.folder))
         self.copy("*.lib", dst="lib", src=lib_dir, keep_path=False)
         self.copy("*.a", dst="lib", src=lib_dir, keep_path=False)
-        self.copy("*.so", dst="lib", src=lib_dir, keep_path=False)
+        self.copy("*.so*", dst="lib", src=lib_dir, keep_path=False, links=True)
         self.copy("*.dll", dst="bin", src=bin_dir, keep_path=False)
 
     def package_info(self):
