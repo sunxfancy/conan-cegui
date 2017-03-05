@@ -4,7 +4,7 @@ import os
 
 
 ############### CONFIGURE THESE VALUES ##################
-default_user = "hilborn"
+default_user = "sunxfancy"
 default_channel = "stable"
 #########################################################
 
